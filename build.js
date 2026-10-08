@@ -35,6 +35,13 @@ const initSqlJs = require('sql.js');
   const js = 'window.DB_B64="' + Buffer.from(db.export()).toString('base64') + '";';
   fs.writeFileSync('dist/inventory-data.js', js);
   fs.writeFileSync('inventory-data.js', js);
+
+  // Fallback for Vercel default output directory
+  fs.mkdirSync('public', { recursive: true });
+  fs.writeFileSync('public/inventory.db', Buffer.from(db.export()));
+  fs.copyFileSync('index.html', 'public/index.html');
+  fs.writeFileSync('public/inventory-data.js', js);
+
   const n = db.exec('SELECT COUNT(*), SUM(stock) FROM products')[0].values[0];
-  console.log(`Database built: ${n[0]} products, ${n[1]} units in stock -> dist/inventory.db`);
+  console.log(`Database built: ${n[0]} products, ${n[1]} units in stock -> dist/ and public/`);
 })();
